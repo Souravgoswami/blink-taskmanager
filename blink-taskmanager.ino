@@ -30,8 +30,11 @@ unsigned char receiveData(char *recv, unsigned char len) {
 		unsigned char counter = 0 ;
 		char str[2] ;
 		char temp_ch = 0 ;
+		unsigned long tm = millis() + 100 ;
 
 		while(1) {
+			if (millis() > tm) break ;
+
 			temp_ch = Serial.read() ;
 			if(temp_ch == 126) break ;
 
