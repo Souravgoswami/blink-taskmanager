@@ -81,7 +81,7 @@ void getDataInit() {
 	return ;
 }
 
-char tempStr[8] ;
+char tempStr[12] ;
 char recv[RECVBYTES + 1] ;
 
 unsigned long c_time ;
@@ -145,6 +145,17 @@ const char *getUnit(unsigned char unit) {
 	else return "YB" ;
 }
 
+// Only convert bytes to Megabytes
+// Needed only to blink the lights
+unsigned long getVal(unsigned short val, unsigned char unit) {
+	if (unit == 0) return val ;
+	else if (unit == 1) return val * 1000UL ;
+	else if (unit == 2) return val * 1000000UL ;
+	else return 2000000000UL ;
+}
+
+unsigned long byte_value1 ;
+
 void loop() {
 	/*
 	 * Get bytes the size of RECVBYTES in this format:
@@ -203,30 +214,34 @@ void loop() {
 		swap_delay = swapU > 90 ? 62 : swapU > 80 ? 125 : swapU > 70 ? 250 : swapU > 60 ? 500 : 0 ;
 		swap_tm = c_time + swap_delay ;
 
+		byte_value1 = getVal(ioR, ioR_Unit) + getVal(ioW, ioW_Unit) ;
+
 		// 250 MB/s
-		if (ioR_Unit + ioW_Unit > 1 && ioR + ioW > 250) io_delay = 62 ;
+		if (byte_value1 > 250000000UL) io_delay = 62 ;
 		// 150 MB/s
-		else if (ioR_Unit + ioW_Unit > 1 && ioR + ioW > 150) io_delay = 125 ;
+		else if (byte_value1 > 150000000UL) io_delay = 125 ;
 		// 90 MB/s
-		else if (ioR_Unit + ioW_Unit > 1 && ioR + ioW > 90) io_delay = 250 ;
+		else if (byte_value1 > 90000000UL) io_delay = 250 ;
 		// 30 MB/s
-		else if(ioR_Unit + ioW_Unit > 1 && ioR + ioW > 30) io_delay = 500 ;
+		else if (byte_value1 > 30000000UL) io_delay = 500 ;
 		// 10 MB/s
-		else if(ioR_Unit + ioW_Unit > 1 && ioR + ioW > 10) io_delay = 1000 ;
+		else if (byte_value1 > 10000000UL) io_delay = 1000 ;
 		else io_delay = 0 ;
 
 		io_tm = c_time + io_delay ;
 
+		byte_value1 = getVal(netDL, netDL_Unit) + getVal(netUL, netUL_Unit) ;
+
 		// 2 MB/s
-		if (netDL_Unit + netUL_Unit > 1 && netDL + netUL > 2) net_delay = 62 ;
+		if (byte_value1 > 2000000UL) net_delay = 62 ;
 		// 1 MB/s
-		else if (netDL_Unit + netUL_Unit > 1 && netDL + netUL > 1) net_delay = 125 ;
+		else if (byte_value1 > 1000000UL) net_delay = 125 ;
 		// 500 KB/s
-		else if (netDL_Unit + netUL_Unit > 0 && netDL + netUL > 500) net_delay = 250 ;
+		else if (byte_value1 > 500000UL) net_delay = 250 ;
 		// 250 KB/s
-		else if(netDL_Unit + netUL_Unit > 0 && netDL + netUL > 250) net_delay = 500 ;
+		else if(byte_value1 > 250000UL) net_delay = 500 ;
 		// 50 KB/s
-		else if(netDL_Unit + netUL_Unit > 0 && netDL + netUL > 50) net_delay = 1000 ;
+		else if(byte_value1 > 50000UL) net_delay = 1000 ;
 		else net_delay = 0 ;
 
 		net_tm = c_time + net_delay ;
