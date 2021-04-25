@@ -16,5 +16,3 @@ const char oneArt[] PROGMEM = { "  `x3`x  `x  `x5`x "} ;
 const char twoArt[] PROGMEM = { "5`x4 `x5`x`x5`x "} ;
 const char threeArt[] PROGMEM = { "4` x3 `x4`x3 `x4`x "} ;
 const char fourArt[] PROGMEM = { "`  `x`  `x4`x3 `x3 `x "} ;
-
-const char blankArt[] PROGMEM = { "           x           x           x           x           x           x           x           x           x           x           x" } ;
