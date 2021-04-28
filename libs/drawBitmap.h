@@ -22,16 +22,17 @@ void drawBitmap(char *art, int col_offset = 0, int row_offset = 0) {
 		}
 
 		c = pgm_read_byte_near(art + i) ;
-		for(unsigned char r = 0 ; r < repeat ; ++r) {
-			if (c == '`') {
+
+		if (c == '`') {
+			for(unsigned char r = 0 ; r < repeat ; ++r) {
 				display.drawPixel(col, row, SSD1306_WHITE) ;
 				col++ ;
-			} else if (c == ' ') {
-				col++ ;
-			} else if (c == 'x') {
-				row++ ;
-				col = col_offset ;
 			}
+		} else if (c == ' ') {
+			col += repeat ;
+		} else if (c == 'x') {
+			col = col_offset ;
+			row += repeat ;
 		}
 	}
 }

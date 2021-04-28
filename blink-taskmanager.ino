@@ -1,4 +1,4 @@
-#pragma GCC optimize("Os")
+#pragma GCC optimize("Ofast")
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64

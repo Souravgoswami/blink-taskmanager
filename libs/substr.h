@@ -5,12 +5,13 @@
 // A check makes sense for other application, not necessary here.
 void substr(char *str, char *buf, unsigned char start, unsigned char stop) {
 	buf[0] = '\0' ;
-	unsigned char end = stop - start + 1;
+	unsigned char end = stop + 1;
 	unsigned char counter = 0 ;
+	unsigned char j = 0 ;
 
-	for(counter = 0 ; counter < end ; ++counter) {
-		buf[counter] = str[counter + start] ;
+	for(counter = start ; counter < end ; ++counter) {
+		buf[j++] = str[counter] ;
 	}
 
-	buf[counter++] = '\0' ;
+	buf[j] = '\0' ;
 }

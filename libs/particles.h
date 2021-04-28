@@ -27,7 +27,7 @@ void drawParticles() {
 		if (p[1] > 64) {
 			p[0] = rand() % 128 ;
 			p[1] = rand() % 64 * -1 ;
-			particles[i][2] = rand() % 3 + 1 ;
+			p[2] = rand() % 3 + 1 ;
 		} else if (rand() % 10 < 8) {
 			display.drawPixel(p[0], p[1], WHITE) ;
 		}
