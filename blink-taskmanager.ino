@@ -7,7 +7,7 @@
 #define TEXTWRAP false
 #define BAUDRATE 57600
 #define FONT Aldrich_Regular5pt7b
-#define RECVBYTES 33
+#define RECVBYTES 34
 #define PARTICLES 30
 #define SCANID F("BTM")
 #define EXPIRY 2000
@@ -94,6 +94,7 @@ unsigned short ioR, ioW ;
 // Floating point parts
 unsigned char netDLM, netULM ;
 unsigned char ioRM, ioWM ;
+unsigned char refresh ;
 
 // Units
 unsigned char netDL_Unit = 0 ;
@@ -206,6 +207,9 @@ void loop() {
 		ioWM = atoi(tempStr) ;
 		substr(recv, tempStr, 32, 32) ;
 		ioW_Unit = atoi(tempStr) ;
+
+		substr(recv, tempStr, 33, 33) ;
+		refresh = tempStr[0] == '1' ? 1 : 0 ;
 
 		// Activate Blinking Icons when the usages are > 75%
 		cpu_delay = cpuU > 90 ? 62 : cpuU > 80 ? 125 : cpuU > 70 ? 250 : cpuU > 60 ? 500 : 0 ;
@@ -325,6 +329,10 @@ void loop() {
 	display.setCursor(70, 62) ;
 	sprintf(tempStr, "%3d.%02d%2s", ioW, ioWM, getUnit(ioW_Unit)) ;
 	display.print(tempStr) ;
+
+	if(refresh) {
+		drawBitmap((char *)fireArt, 116, 0) ;
+	}
 
 	drawParticles() ;
 	display.display() ;
