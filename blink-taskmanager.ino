@@ -86,10 +86,13 @@ char recv[RECVBYTES + 1] ;
 
 unsigned long c_time ;
 
+// Usages
 unsigned char cpuU, memU,swapU ;
 unsigned short netDL, netUL ;
-unsigned char netDLM, netULM ;
 unsigned short ioR, ioW ;
+
+// Floating point parts
+unsigned char netDLM, netULM ;
 unsigned char ioRM, ioWM ;
 
 // Units
@@ -116,7 +119,6 @@ unsigned long dataReceiveExpiry = 0 ;
 
 void setup() {
 	Serial.begin(BAUDRATE) ;
-	Serial.setTimeout(0) ;
 
 	if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
 		while(1) ;
@@ -126,7 +128,7 @@ void setup() {
 	display.setFont(&FONT) ;
 	display.setTextSize(1) ;
 	display.setTextWrap(TEXTWRAP) ;
-	display.setTextColor(WHITE) ;
+	display.setTextColor(SSD1306_WHITE) ;
 
 	initParticles() ;
 	getDataInit() ;
@@ -165,6 +167,7 @@ void loop() {
 	 *
 	 * Total bytes to receive 25
 	 */
+
 	c_time = millis() ;
 	if (receiveData(recv, RECVBYTES)) {
 		substr(recv, tempStr, 0, 2) ;
@@ -245,7 +248,7 @@ void loop() {
 		else net_delay = 0 ;
 
 		net_tm = c_time + net_delay ;
-	
+
 		dataReceiveExpiry = c_time + EXPIRY ;
 	}
 
