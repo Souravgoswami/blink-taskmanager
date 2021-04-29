@@ -2,7 +2,6 @@
 #include <Adafruit_SSD1306.h>
 // Paint the bitmaps
 
-// Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET) ;
 void drawBitmap(char *art, int col_offset = 0, int row_offset = 0) {
 	char ch[2], c ;
 

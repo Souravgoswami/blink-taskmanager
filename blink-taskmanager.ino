@@ -11,6 +11,7 @@
 #define PARTICLES 30
 #define SCANID F("BTM")
 #define EXPIRY 2000
+#define TIMEOUT 100
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -30,7 +31,7 @@ unsigned char receiveData(char *recv, unsigned char len) {
 		unsigned char counter = 0 ;
 		char str[2] ;
 		char temp_ch = 0 ;
-		unsigned long tm = millis() + 100 ;
+		unsigned long tm = millis() + TIMEOUT ;
 
 		while(1) {
 			if (millis() > tm) break ;
@@ -61,7 +62,7 @@ void getDataInit() {
 		display.display() ;
 
 		if(Serial.read()== 35) {
-			unsigned long tm = millis() + 100 ;
+			unsigned long tm = millis() + TIMEOUT ;
 
 			while(tm > millis()) {
 				display.clearDisplay() ;
@@ -94,7 +95,7 @@ unsigned short ioR, ioW ;
 // Floating point parts
 unsigned char netDLM, netULM ;
 unsigned char ioRM, ioWM ;
-unsigned char refresh ;
+unsigned long refresh ;
 
 // Units
 unsigned char netDL_Unit = 0 ;
@@ -164,12 +165,11 @@ void loop() {
 	 * Get bytes the size of RECVBYTES in this format:
 	 *	cpu(100) memUsed(100) swapUsed(100)
 	 *	netDownload(9991) netUpload(9991)
-	 *	ioWrite(9991) ioRead(9991)
+	 *	ioWrite(9991) ioRead(9991) Refresh(1)
 	 *
 	 * Total bytes to receive 25
 	 */
 
-	c_time = millis() ;
 	if (receiveData(recv, RECVBYTES)) {
 		substr(recv, tempStr, 0, 2) ;
 		cpuU = atoi(tempStr) ;
@@ -209,7 +209,7 @@ void loop() {
 		ioW_Unit = atoi(tempStr) ;
 
 		substr(recv, tempStr, 33, 33) ;
-		refresh = tempStr[0] == '1' ? 1 : 0 ;
+		refresh = tempStr[0] == '1' ? millis() + TIMEOUT : 0 ;
 
 		// Activate Blinking Icons when the usages are > 75%
 		cpu_delay = cpuU > 90 ? 62 : cpuU > 80 ? 125 : cpuU > 70 ? 250 : cpuU > 60 ? 500 : 0 ;
@@ -251,8 +251,9 @@ void loop() {
 		else if(byte_value1 > 50000UL) net_delay = 1000 ;
 		else net_delay = 0 ;
 
-		net_tm = c_time + net_delay ;
+		c_time = millis() ;
 
+		net_tm = c_time + net_delay ;
 		dataReceiveExpiry = c_time + EXPIRY ;
 	}
 
@@ -316,6 +317,7 @@ void loop() {
 	sprintf(tempStr, "%3d.%02d%2s", netUL, netULM, getUnit(netUL_Unit)) ;
 	display.print(tempStr) ;
 
+	c_time = millis() ;
 	if (io_delay) {
 		if (c_time < io_tm) drawBitmap((char *)ioArt, 90, 34) ;
 		else if (c_time > io_tm + io_delay) io_tm = c_time + io_delay ;
@@ -330,7 +332,8 @@ void loop() {
 	sprintf(tempStr, "%3d.%02d%2s", ioW, ioWM, getUnit(ioW_Unit)) ;
 	display.print(tempStr) ;
 
-	if(refresh) {
+	c_time = millis() ;
+	if (c_time < refresh) {
 		drawBitmap((char *)fireArt, 116, 0) ;
 	}
 
