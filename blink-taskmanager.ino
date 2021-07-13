@@ -5,13 +5,13 @@
 #define SCREEN_ADDRESS 0x3C
 #define DISPLAYROTATION 2
 #define TEXTWRAP false
-#define BAUDRATE 115200
+#define BAUDRATE 38400
 #define FONT Aldrich_Regular5pt7b
 #define RECVBYTES 34
-#define PARTICLES 40
+#define PARTICLES 25
 #define SCANID F("BTM")
 #define EXPIRY 2000
-#define TIMEOUT 100
+#define TIMEOUT 50
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -220,13 +220,8 @@ void loop() {
 
 		// Activate Blinking Icons when the usages are > 75%
 		cpu_delay = cpuU > 90 ? 62 : cpuU > 80 ? 125 : cpuU > 70 ? 250 : cpuU > 60 ? 500 : 0 ;
-		cpu_tm = c_time + cpu_delay ;
-
 		mem_delay = memU > 90 ? 62 : memU > 80 ? 125 : memU > 70 ? 250 : memU > 60 ? 500 : 0 ;
-		mem_tm = c_time + mem_delay ;
-
 		swap_delay = swapU > 90 ? 62 : swapU > 80 ? 125 : swapU > 70 ? 250 : swapU > 60 ? 500 : 0 ;
-		swap_tm = c_time + swap_delay ;
 
 		byte_value1 = getVal(ioR, ioR_Unit) + getVal(ioW, ioW_Unit) ;
 
@@ -241,8 +236,6 @@ void loop() {
 		// 10 MB/s
 		else if (byte_value1 > 10000000UL) io_delay = 1000 ;
 		else io_delay = 0 ;
-
-		io_tm = c_time + io_delay ;
 
 		byte_value1 = getVal(netDL, netDL_Unit) + getVal(netUL, netUL_Unit) ;
 
@@ -259,8 +252,6 @@ void loop() {
 		else net_delay = 0 ;
 
 		c_time = millis() ;
-
-		net_tm = c_time + net_delay ;
 		dataReceiveExpiry = c_time + EXPIRY ;
 	}
 
