@@ -8,7 +8,7 @@
 #define BAUDRATE 38400
 #define FONT Aldrich_Regular5pt7b
 #define RECVBYTES 34
-#define PARTICLES 25
+#define PARTICLES 32
 #define SCANID F("BTM")
 #define EXPIRY 2000
 #define TIMEOUT 50
@@ -50,6 +50,7 @@ unsigned char receiveData(char *recv, unsigned char len) {
 		recv[++counter] = '\0' ;
 		if (strlen(recv) == len) {
 			Serial.print(getCRC(recv)) ;
+			Serial.flush() ;
 			return 1 ;
 		} else {
 			return 0 ;
