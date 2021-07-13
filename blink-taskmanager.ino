@@ -1,14 +1,14 @@
-#pragma GCC optimize("Ofast")
+#pragma GCC optimize("Os")
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define SCREEN_ADDRESS 0x3C
 #define DISPLAYROTATION 2
 #define TEXTWRAP false
-#define BAUDRATE 57600
+#define BAUDRATE 115200
 #define FONT Aldrich_Regular5pt7b
 #define RECVBYTES 34
-#define PARTICLES 30
+#define PARTICLES 40
 #define SCANID F("BTM")
 #define EXPIRY 2000
 #define TIMEOUT 100
@@ -24,6 +24,8 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, 4) ;
 #include "fonts/aldrich-regular-5.h"
 #include "libs/particles.h"
 #include "libs/initDisplayState.h"
+
+#include "libs/crc32.h"
 
 unsigned char receiveData(char *recv, unsigned char len) {
 	if(Serial.read() == 33) {
@@ -46,7 +48,12 @@ unsigned char receiveData(char *recv, unsigned char len) {
 		}
 
 		recv[++counter] = '\0' ;
-		return strlen(recv) == len ? 1 : 0 ;
+		if (strlen(recv) == len) {
+			Serial.print(getCRC(recv)) ;
+			return 1 ;
+		} else {
+			return 0 ;
+		}
 	}
 
 	return 0 ;
@@ -61,7 +68,7 @@ void getDataInit() {
 		drawParticles() ;
 		display.display() ;
 
-		if(Serial.read()== 35) {
+		if(Serial.read() == 35) {
 			unsigned long tm = millis() + TIMEOUT ;
 
 			while(tm > millis()) {
