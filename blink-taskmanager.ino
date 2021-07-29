@@ -8,7 +8,8 @@
 #define BAUDRATE 38400
 #define FONT Aldrich_Regular5pt7b
 #define RECVBYTES 34
-#define PARTICLES 32
+#define PARTICLES 50
+#define PARTICLES_FALL 30
 #define SCANID F("BTM")
 #define EXPIRY 2000
 #define TIMEOUT 50
@@ -175,7 +176,7 @@ void loop() {
 	 *	netDownload(9991) netUpload(9991)
 	 *	ioWrite(9991) ioRead(9991) Refresh(1)
 	 *
-	 * Total bytes to receive 25
+	 * Total bytes to receive 34
 	 */
 
 	if (receiveData(recv, RECVBYTES)) {
