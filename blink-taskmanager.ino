@@ -221,9 +221,9 @@ void loop() {
 		refresh = tempStr[0] == '1' ? millis() + TIMEOUT : 0 ;
 
 		// Activate Blinking Icons when the usages are > 75%
-		cpu_delay = cpuU > 90 ? 62 : cpuU > 80 ? 125 : cpuU > 70 ? 250 : cpuU > 60 ? 500 : 0 ;
-		mem_delay = memU > 90 ? 62 : memU > 80 ? 125 : memU > 70 ? 250 : memU > 60 ? 500 : 0 ;
-		swap_delay = swapU > 90 ? 62 : swapU > 80 ? 125 : swapU > 70 ? 250 : swapU > 60 ? 500 : 0 ;
+		cpu_delay = cpuU == 255 ? 0 : cpuU > 90 ? 62 : cpuU > 80 ? 125 : cpuU > 70 ? 250 : cpuU > 60 ? 500 : 0 ;
+		mem_delay = memU == 255 ? 0 : memU > 90 ? 62 : memU > 80 ? 125 : memU > 70 ? 250 : memU > 60 ? 500 : 0 ;
+		swap_delay = swapU == 255 ? 0 : swapU > 90 ? 62 : swapU > 80 ? 125 : swapU > 70 ? 250 : swapU > 60 ? 500 : 0 ;
 
 		byte_value1 = getVal(ioR, ioR_Unit) + getVal(ioW, ioW_Unit) ;
 
@@ -272,7 +272,11 @@ void loop() {
 		drawBitmap((char *)cpuArt, 26, 4) ;
 	}
 
-	sprintf(tempStr, "%3d%%", cpuU) ;
+	if (cpuU == 255) {
+		strcpy(tempStr, "N/A") ;
+	} else {
+		sprintf(tempStr, "%3d%%", cpuU) ;
+	}
 	display.setCursor(20, 24) ;
 	display.print(tempStr) ;
 
@@ -284,7 +288,11 @@ void loop() {
 		drawBitmap((char *)memArt, 58, 4) ;
 	}
 
-	sprintf(tempStr, "%3d%%", memU) ;
+	if (memU == 255) {
+		strcpy(tempStr, "N/A") ;
+	} else {
+		sprintf(tempStr, "%3d%%", memU) ;
+	}
 	display.setCursor(54, 24) ;
 	display.print(tempStr) ;
 
@@ -296,7 +304,11 @@ void loop() {
 		drawBitmap((char *)swapArt, 90, 4) ;
 	}
 
-	sprintf(tempStr, "%3d%%", swapU) ;
+	if (swapU == 255) {
+		strcpy(tempStr, "N/A") ;
+	} else {
+		sprintf(tempStr, "%3d%%", swapU) ;
+	} 
 	display.setCursor(86, 24) ;
 	display.print(tempStr) ;
 
