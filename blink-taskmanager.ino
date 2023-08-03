@@ -7,17 +7,30 @@
 #define TEXTWRAP false
 #define BAUDRATE 38400
 #define FONT Aldrich_Regular5pt7b
-#define RECVBYTES 34
+#define RECVBYTES 35
 #define PARTICLES 60
 #define PARTICLES_FALL 8
 #define SCANID F("BTM")
 #define EXPIRY 2000
 #define TIMEOUT 50
+#define LED_ACTIVE_LOW
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, 4) ;
+// Declaration for SSD1306 display connected using software SPI (default case).
+// If using I2C, comment the code for SPI (`#include` to `Adafruit_SSD1306 display()`), and just uncomment this one line:
+// Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, 4) ;
+#define OLED_MOSI   D5
+#define OLED_CLK    D7
+#define OLED_DC     D1
+#define OLED_CS     D8
+#define OLED_RESET  D3
+
+Adafruit_SSD1306 display(
+  SCREEN_WIDTH, SCREEN_HEIGHT,
+  OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS
+);
 
 #include "libs/arts.h"
 #include "libs/drawBitmap.h"
@@ -27,6 +40,33 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, 4) ;
 #include "libs/initDisplayState.h"
 
 #include "libs/crc32.h"
+
+bool ledBuiltInHigh = false ;
+bool lightOn = false ;
+
+void turnOnLED() {
+	if (!ledBuiltInHigh) {
+		#ifdef LED_ACTIVE_LOW
+			digitalWrite(LED_BUILTIN, LOW);
+		#else
+			digitalWrite(LED_BUILTIN, HIGH);
+		#endif
+
+		ledBuiltInHigh = true ;
+	}
+}
+
+void turnOffLED() {
+	if (ledBuiltInHigh) {
+		#ifdef LED_ACTIVE_LOW
+			digitalWrite(LED_BUILTIN, HIGH);
+		#else
+			digitalWrite(LED_BUILTIN, LOW);
+		#endif
+
+		ledBuiltInHigh = false ;
+	}
+}
 
 unsigned char receiveData(char *recv, unsigned char len) {
 	if (Serial.read() == 33) {
@@ -65,6 +105,8 @@ void getDataInit() {
 	while (1) {
 		Serial.println(SCANID) ;
 		Serial.flush() ;
+
+		turnOffLED() ;
 
 		initDisplayState() ;
 		drawParticles() ;
@@ -135,6 +177,17 @@ void setup() {
 		while (1) ;
 	}
 
+  pinMode(LED_BUILTIN, OUTPUT);
+
+  while(millis() < 1500) {
+    digitalWrite(LED_BUILTIN, HIGH) ;
+    delay(100) ;
+    digitalWrite(LED_BUILTIN, LOW) ;
+    delay(100) ;
+  }
+
+  digitalWrite(LED_BUILTIN, HIGH) ;
+
 	display.setRotation(DISPLAYROTATION) ;
 	display.setFont(&FONT) ;
 	display.setTextSize(1) ;
@@ -168,6 +221,7 @@ unsigned long getVal(unsigned short val, unsigned char unit) {
 }
 
 unsigned long byte_value1 ;
+unsigned char ledBrightness = 0 ;
 
 void loop() {
 	/*
@@ -217,7 +271,16 @@ void loop() {
 		substr(recv, tempStr, 32, 32) ;
 		ioW_Unit = atoi(tempStr) ;
 
-		substr(recv, tempStr, 33, 33) ;
+    substr(recv, tempStr, 33, 33) ;
+    lightOn = atoi(tempStr) == 1 ? true : false ;
+
+    if (lightOn) {
+			turnOnLED() ;
+    } else {
+			turnOffLED() ;
+		}
+
+		substr(recv, tempStr, 34, 34) ;
 		refresh = tempStr[0] == '1' ? millis() + TIMEOUT : 0 ;
 
 		// Activate Blinking Icons when the usages are > 75%
@@ -255,7 +318,7 @@ void loop() {
 
 		c_time = millis() ;
 		dataReceiveExpiry = c_time + EXPIRY ;
-	}
+  }
 
 	c_time = millis() ;
 	if (c_time > dataReceiveExpiry) {
@@ -308,7 +371,7 @@ void loop() {
 		strcpy(tempStr, "N/A") ;
 	} else {
 		sprintf(tempStr, "%3d%%", swapU) ;
-	} 
+	}
 	display.setCursor(86, 24) ;
 	display.print(tempStr) ;
 
